@@ -26,7 +26,14 @@ class Servidor():
         procesar.daemon = True
         procesar.start()
 
-        self.aes = AES_256()
+        archivo = open("key.txt", "r")
+        key = ''
+        for linea in archivo:
+            key += linea
+        print(key)
+        self.key = key
+
+        self.aes = AES_256(self.key)
 
         while True:
             msg = input('->')
@@ -38,15 +45,15 @@ class Servidor():
 
     def msg_to_all(self, msg, cliente):
         if "salir" in self.aes.dec(msg).decode("utf-8").lower():
-            self.aes = AES_256()
+            self.aes = AES_256(self.key)
             aux = ':'.join(str(c)
                            for c in cliente.getpeername()) + ' se desconecto'
             msg = str.encode(self.aes.enc(str.encode(aux)))
             print(cliente.getpeername(), ' se ha desconectado')
-            self.aes = AES_256()
+            self.aes = AES_256(self.key)
             self.clientes.remove(cliente)
         else:
-            self.aes = AES_256()
+            self.aes = AES_256(self.key)
 
         for c in self.clientes:
             if c != cliente:
@@ -63,7 +70,7 @@ class Servidor():
                 self.clientes.append(conn)
                 print("%s:%s conectado" % addr)
                 conn.send(self.aes.enc("Hola, ahora estas conectado"))
-                self.aes = AES_256()
+                self.aes = AES_256(self.key)
             except:
                 pass
 

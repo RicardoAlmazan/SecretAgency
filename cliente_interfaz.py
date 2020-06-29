@@ -54,3 +54,4 @@ class interfaz():
     def on_closing(self, event=None):
         self.nuevo_msj.set("salir")
         self.enviar_mensaje()
+        self.top.destroy()
